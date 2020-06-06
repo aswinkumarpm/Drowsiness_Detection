@@ -9,12 +9,12 @@ import time
 import dlib
 import cv2
 import os
-import pygame #For playing sound
+import pygame  # For playing sound
 
-
-#Initialize Pygame and load music
+# Initialize Pygame and load music
 pygame.mixer.init()
 pygame.mixer.music.load('audio/slowing your vehicle.wav')
+
 
 def alarm(msg):
     global alarm_status
@@ -23,7 +23,7 @@ def alarm(msg):
 
     while alarm_status:
         print('call')
-        s = 'espeak "'+msg+'"'
+        s = 'espeak "' + msg + '"'
         os.system(s)
 
     if alarm_status2:
@@ -32,6 +32,7 @@ def alarm(msg):
         s = 'espeak "' + msg + '"'
         os.system(s)
         saying = False
+
 
 def eye_aspect_ratio(eye):
     A = dist.euclidean(eye[1], eye[5])
@@ -42,6 +43,7 @@ def eye_aspect_ratio(eye):
     ear = (A + B) / (2.0 * C)
 
     return ear
+
 
 def final_ear(shape):
     (lStart, lEnd) = face_utils.FACIAL_LANDMARKS_IDXS["left_eye"]
@@ -55,6 +57,7 @@ def final_ear(shape):
 
     ear = (leftEAR + rightEAR) / 2.0
     return (ear, leftEye, rightEye)
+
 
 def lip_distance(shape):
     top_lip = shape[50:53]
@@ -84,14 +87,13 @@ saying = False
 COUNTER = 0
 
 print("-> Loading the predictor and detector...")
-#detector = dlib.get_frontal_face_detector()
-detector = cv2.CascadeClassifier("haarcascade_frontalface_default.xml")    #Faster but less accurate
+# detector = dlib.get_frontal_face_detector()
+detector = cv2.CascadeClassifier("haarcascade_frontalface_default.xml")  # Faster but less accurate
 predictor = dlib.shape_predictor('shape_predictor_68_face_landmarks.dat')
-
 
 print("-> Starting Video Stream")
 vs = VideoStream(src=args["webcam"]).start()
-#vs= VideoStream(usePiCamera=True).start()       //For Raspberry Pi
+# vs= VideoStream(usePiCamera=True).start()       //For Raspberry Pi
 time.sleep(1.0)
 
 while True:
@@ -100,21 +102,21 @@ while True:
     frame = imutils.resize(frame, width=450)
     gray = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
 
-    #rects = detector(gray, 0)
-    rects = detector.detectMultiScale(gray, scaleFactor=1.1, 
-		minNeighbors=5, minSize=(30, 30),
-		flags=cv2.CASCADE_SCALE_IMAGE)
+    # rects = detector(gray, 0)
+    rects = detector.detectMultiScale(gray, scaleFactor=1.1,
+                                      minNeighbors=5, minSize=(30, 30),
+                                      flags=cv2.CASCADE_SCALE_IMAGE)
 
-    #for rect in rects:
+    # for rect in rects:
     for (x, y, w, h) in rects:
-        rect = dlib.rectangle(int(x), int(y), int(x + w),int(y + h))
-        
+        rect = dlib.rectangle(int(x), int(y), int(x + w), int(y + h))
+
         shape = predictor(gray, rect)
         shape = face_utils.shape_to_np(shape)
 
         eye = final_ear(shape)
         ear = eye[0]
-        leftEye = eye [1]
+        leftEye = eye[1]
         rightEye = eye[2]
 
         distance = lip_distance(shape)
@@ -131,9 +133,8 @@ while True:
             COUNTER += 1
 
             if COUNTER >= EYE_AR_CONSEC_FRAMES:
+                pygame.mixer.music.play(0)
                 if alarm_status == False:
-                    pygame.mixer.music.play(0)
-
                     alarm_status = True
                     t = Thread(target=alarm, args=('wake up sir',))
                     t.deamon = True
@@ -147,15 +148,14 @@ while True:
             alarm_status = False
 
         if (distance > YAWN_THRESH):
-                cv2.putText(frame, "YAWN ALERT!", (10, 30),
-                            cv2.FONT_HERSHEY_SIMPLEX, 0.7, (0, 0, 255), 2)
-                if alarm_status2 == False and saying == False:
-                    pygame.mixer.music.play(0)
-
-                    alarm_status2 = True
-                    t = Thread(target=alarm, args=('take some fresh air sir',))
-                    t.deamon = True
-                    t.start()
+            pygame.mixer.music.play(0)
+            cv2.putText(frame, "YAWN ALERT!", (10, 30),
+                        cv2.FONT_HERSHEY_SIMPLEX, 0.7, (0, 0, 255), 2)
+            if alarm_status2 == False and saying == False:
+                alarm_status2 = True
+                t = Thread(target=alarm, args=('take some fresh air sir',))
+                t.deamon = True
+                t.start()
         else:
             alarm_status2 = False
 
@@ -163,7 +163,6 @@ while True:
                     cv2.FONT_HERSHEY_SIMPLEX, 0.7, (0, 0, 255), 2)
         cv2.putText(frame, "YAWN: {:.2f}".format(distance), (300, 60),
                     cv2.FONT_HERSHEY_SIMPLEX, 0.7, (0, 0, 255), 2)
-
 
     cv2.imshow("Frame", frame)
     key = cv2.waitKey(1) & 0xFF
