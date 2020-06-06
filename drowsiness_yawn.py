@@ -139,7 +139,7 @@ while True:
                     t.deamon = True
                     t.start()
 
-                cv2.putText(frame, "DROWSINESS ALERT!, Slow Your Vehicle", (10, 30),
+                cv2.putText(frame, "DROWSINESS ALERT!", (10, 30),
                             cv2.FONT_HERSHEY_SIMPLEX, 0.7, (0, 0, 255), 2)
 
         else:
@@ -147,7 +147,7 @@ while True:
             alarm_status = False
 
         if (distance > YAWN_THRESH):
-                cv2.putText(frame, "YAWN ALERT!, Slow Your Vehicle", (10, 30),
+                cv2.putText(frame, "YAWN ALERT!", (10, 30),
                             cv2.FONT_HERSHEY_SIMPLEX, 0.7, (0, 0, 255), 2)
                 if alarm_status2 == False and saying == False:
                     pygame.mixer.music.play(0)
