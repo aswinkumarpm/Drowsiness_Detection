@@ -133,6 +133,7 @@ while True:
             COUNTER += 1
 
             if COUNTER >= EYE_AR_CONSEC_FRAMES:
+                print('DROWSINESS ALERT!,Slow Your Vehicle')
                 pygame.mixer.music.play(0)
                 if alarm_status == False:
                     alarm_status = True
@@ -149,6 +150,7 @@ while True:
 
         if (distance > YAWN_THRESH):
             pygame.mixer.music.play(0)
+            print('YAWN ALERT!, Slow Your Vehicle')
             cv2.putText(frame, "YAWN ALERT!", (10, 30),
                         cv2.FONT_HERSHEY_SIMPLEX, 0.7, (0, 0, 255), 2)
             if alarm_status2 == False and saying == False:
