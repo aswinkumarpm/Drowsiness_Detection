@@ -133,16 +133,17 @@ while True:
             COUNTER += 1
 
             if COUNTER >= EYE_AR_CONSEC_FRAMES:
-                print('DROWSINESS ALERT!,Slow Your Vehicle')
                 pygame.mixer.music.play(0)
+                print('DROWSINESS ALERT!,Slow Your Vehicle')
+                cv2.putText(frame, "DROWSINESS ALERT!", (10, 30),
+                            cv2.FONT_HERSHEY_SIMPLEX, 0.7, (0, 0, 255), 2)
                 if alarm_status == False:
                     alarm_status = True
                     t = Thread(target=alarm, args=('wake up sir',))
                     t.deamon = True
                     t.start()
 
-                cv2.putText(frame, "DROWSINESS ALERT!", (10, 30),
-                            cv2.FONT_HERSHEY_SIMPLEX, 0.7, (0, 0, 255), 2)
+
 
         else:
             COUNTER = 0
